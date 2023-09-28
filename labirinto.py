@@ -40,7 +40,7 @@ def imprimir_labirinto(labirinto):
     for row in labirinto:
         print("".join(row))
 
-def on_ver_caminho():
+def on_ver_caminho(labirinto, labirinto_label):
     caminho = bfs_labirinto(labirinto)
 
     if caminho:
@@ -57,10 +57,25 @@ def on_ver_caminho():
         labirinto_atualizado = marcar_labirinto(labirinto, caminho)
         labirinto_txt = "\n".join(["".join(row) for row in labirinto_atualizado])
         labirinto_label.config(text=labirinto_txt)
-    else:
-        messagebox.showinfo("Caminho mais curto", "Nenhum caminho encontrado.")
 
-labirinto = [
+def criar_labirinto_frame(root, labirinto, titulo):
+    frame = tk.Frame(root)
+    frame.pack(side=tk.TOP)
+
+    # Exibindo o título centralizado na cor roxa
+    title_label = tk.Label(frame, text=titulo, font=("Arial", 16), fg="purple")
+    title_label.pack()
+
+    # Exibindo o labirinto na tela
+    labirinto_txt = "\n".join(labirinto)
+    labirinto_label = tk.Label(frame, text=labirinto_txt, font=("Courier", 12))
+    labirinto_label.pack()
+
+    # Botão para ver o caminho
+    btn_ver_caminho = tk.Button(frame, text="Ver Caminho", command=lambda: on_ver_caminho(labirinto, labirinto_label))
+    btn_ver_caminho.pack()
+
+labirinto1 = [
     "#### ######################",
     "#### ######################",
     "##            #       #####",
@@ -74,19 +89,24 @@ labirinto = [
     "############### ############"
 ]
 
+labirinto2 = [
+    "##### ###############",
+    "#                   #",
+    "# #   #   #   #   # #",
+    "# # # # # # # # # # #",
+    "# #   #   #   #   # #",
+    "# # # # # #   # # # #",
+    "# #   #   #   #   # #",
+    "# ########### ##### #",
+    "#   ####            #",
+    "################### #"
+]
+
 root = tk.Tk()
 root.title("Labirinto e Caminho mais Curto")
 
-# Exibindo o título centralizado na cor roxa
-title_label = tk.Label(root, text="Caminhando contra o BUG", font=("Arial", 16), fg="purple")
-title_label.pack()
-
-# Exibindo o labirinto inicial na tela
-labirinto_txt = "\n".join(labirinto)
-labirinto_label = tk.Label(root, text=labirinto_txt, font=("Courier", 12))
-labirinto_label.pack()
-
-btn_ver_caminho = tk.Button(root, text="Ver Caminho", command=on_ver_caminho)
-btn_ver_caminho.pack()
+# Crie frames para cada labirinto
+criar_labirinto_frame(root, labirinto1, "Labirinto 1")
+criar_labirinto_frame(root, labirinto2, "Labirinto 2")
 
 root.mainloop()
