@@ -75,38 +75,83 @@ def criar_labirinto_frame(root, labirinto, titulo):
     btn_ver_caminho = tk.Button(frame, text="Ver Caminho", command=lambda: on_ver_caminho(labirinto, labirinto_label))
     btn_ver_caminho.pack()
 
-labirinto1 = [
-    "#### ######################",
-    "#### ######################",
-    "##                   ######",
-    "###### #####    ### #######",
-    "###### ##### #####     ####",
-    "###    ###    ##   ## #####",
-    "### ###### ####### ##   ###",
-    "###     ##     ###   ##  ##",
-    "### ### ######   # #  #  ##",
-    "##   ##      ##    #    ###",
-    "############### ############"
-]
+def abrir_janela_labirintos(nome_usuario):
+    labirinto1 = [
+        "#### ######################",
+        "#### ######################",
+        "##                   ######",
+        "###### #####    ### #######",
+        "###### ##### #####     ####",
+        "###    ###    ##   ## #####",
+        "### ###### ####### ##   ###",
+        "###     ##     ###   ##  ##",
+        "### ### ######   # #  #  ##",
+        "##   ##      ##    #    ###",
+        "############### ###########"
+    ]
 
-labirinto2 = [
-    "##### ###############",
-    "#                   #",
-    "# #   #   #   #   # #",
-    "# # # # # # # # # # #",
-    "# #   #   #   #   # #",
-    "# # # # # #   # #   #",
-    "# #   #   #   #   ###",
-    "# ########### ## ## #",
-    "#   ####            #",
-    "################### #"
-]
+    labirinto2 = [
+        "##### ###############",
+        "#                   #",
+        "# #   #   #   #   # #",
+        "# # # # # # # # # # #",
+        "# #   #   #   #   # #",
+        "# # # # # #   # #   #",
+        "# #   #   #   #   ###",
+        "# ########### ## ## #",
+        "#   ####            #",
+        "################### #"
+    ]
 
-root = tk.Tk()
-root.title("Labirinto e Caminho mais Curto")
+    root = tk.Tk()
+    root.title("Labirinto e Caminho mais Curto")
 
-# Crie frames para cada labirinto
-criar_labirinto_frame(root, labirinto1, "Labirinto 1")
-criar_labirinto_frame(root, labirinto2, "Labirinto 2")
+    # Crie frames para cada labirinto
+    criar_labirinto_frame(root, labirinto1, "Labirinto 1")
+    criar_labirinto_frame(root, labirinto2, "Labirinto 2")
 
-root.mainloop()
+    # Adicione uma saudação com o nome do usuário
+    saudacao_label = tk.Label(root, text=f"Bem-vindo, {nome_usuario}!", font=("Arial", 16), fg="purple")
+    saudacao_label.pack()
+
+    root.mainloop()
+
+def abrir_janela_nickname():
+    def on_botao_experimentar():
+        nome_usuario = entry_nickname.get()
+        if nome_usuario:
+            janela_nickname.destroy()
+            abrir_janela_labirintos(nome_usuario)
+
+    janela_nickname = tk.Tk()
+    janela_nickname.title("Digite seu Nickname")
+
+    # Centralize verticalmente o conteúdo
+    janela_nickname.geometry("300x200")
+    frame_central = tk.Frame(janela_nickname)
+    frame_central.pack(expand=True, fill="both")
+
+    # Label "LABIRINTO" acima do campo de entrada de nickname
+    label_labirinto = tk.Label(frame_central, text="LABIRINTO", font=("Arial", 24), fg="purple")
+    label_labirinto.pack()
+
+    # Espaço em branco para separação
+    espaco_em_branco = tk.Label(frame_central, text="", font=("Arial", 12))
+    espaco_em_branco.pack()
+
+    # Label de instrução
+    label_instrucao = tk.Label(frame_central, text="Digite seu Nickname:", font=("Arial", 16))
+    label_instrucao.pack()
+
+    # Campo de entrada de texto para o nickname
+    entry_nickname = tk.Entry(frame_central, font=("Arial", 16))
+    entry_nickname.pack()
+
+    # Botão para experimentar
+    botao_experimentar = tk.Button(frame_central, text="Experimentar", command=on_botao_experimentar, font=("Arial", 16))
+    botao_experimentar.pack()
+
+    janela_nickname.mainloop()
+
+# Inicie abrindo a janela de nickname
+abrir_janela_nickname()
