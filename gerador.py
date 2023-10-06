@@ -1,40 +1,62 @@
 import random
 
 def generate_maze(width, height):
-    # Inicialize uma matriz para representar o labirinto
-    maze = [['#'] * (2 * width + 1) for _ in range(2 * height + 1)]
+    def is_valid(x, y):
+        return 0 <= x < width and 0 <= y < height
 
-    # Função para cavar caminhos no labirinto
-    def dig(x, y):
-        maze[y][x] = ' '  # Marcar a célula como vazia
-
-        # Direções possíveis (cima, baixo, esquerda, direita)
-        directions = [(0, -2), (0, 2), (-2, 0), (2, 0)]
-        random.shuffle(directions)
-
-        for dx, dy in directions:
-            nx, ny = x + dx, y + dy
-
-            # Verificar se a próxima célula é válida
-            if 0 < nx < 2 * width and 0 < ny < 2 * height and maze[ny][nx] == '#':
-                mx, my = x + dx // 2, y + dy // 2
-                maze[my][mx] = ' '  # Remover a parede entre as células
-                dig(nx, ny)  # Recursivamente cavar a próxima célula
-
-    # Comece a cavar a partir do ponto inicial (1, 1)
-    dig(1, 1)
+    maze = [['#'] * width for _ in range(height)]
 
     # Defina os pontos de entrada e saída
-    maze[0][1] = ' '
-    maze[2 * height][2 * width - 1] = ' '
+    start_x, start_y = 1, 0
+    end_x, end_y = width - 2, height - 1
 
-    # Converter a matriz do labirinto em uma única string
-    maze_str = '\n'.join([''.join(row) for row in maze])
+    stack = [(start_x, start_y)]
 
-    return maze_str
+    while stack:
+        x, y = stack[-1]
+        maze[y][x] = ' '
+
+        neighbors = [(x + 2, y), (x - 2, y), (x, y + 2), (x, y - 2)]
+        random.shuffle(neighbors)
+
+        found = False
+        for nx, ny in neighbors:
+            if is_valid(nx, ny) and maze[ny][nx] == '#':
+                maze[ny][nx] = ' '
+                maze[(ny + y) // 2][(nx + x) // 2] = ' '
+                stack.append((nx, ny))
+                found = True
+                break
+
+        if not found:
+            stack.pop()
+
+    # Adicione paredes nas laterais
+    for y in range(height):
+        maze[y][0] = '#'
+        maze[y][width - 1] = '#'
+
+    return maze
+
+def print_maze(maze):
+    for row in maze:
+        print("".join(row))
+
+def write_maze_to_file(maze, filename):
+    with open(filename, 'w') as file:
+        for row in maze:
+            file.write("".join(row) + '\n')
 
 if __name__ == "__main__":
-    width = 10
-    height = 5
+    width = 21
+    height = 11
     maze = generate_maze(width, height)
-    print(maze)
+    
+    # Defina os pontos de entrada e saída
+    maze[0][1] = ' '  # Entrada
+    maze[height - 1][width - 2] = ' '  # Saída
+    
+    print_maze(maze)
+
+    # Escreva o labirinto em um arquivo de texto chamado "labirinto.txt"
+    write_maze_to_file(maze, "labirinto.txt")

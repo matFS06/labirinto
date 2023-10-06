@@ -2,46 +2,72 @@ import tkinter as tk
 from tkinter import messagebox
 from collections import deque
 
-def bfs_labirinto(labirinto):
-    # Função de busca em largura (BFS) para encontrar o caminho mais curto
-    def is_valid(x, y):
-        return 0 <= x < len(labirinto) and 0 <= y < len(labirinto[0]) and labirinto[x][y] == ' '
+class Grafo:
+    def __init__(self):
+        self.vertices = {}
+    
+    def adicionar_vertice(self, vertice):
+        if vertice not in self.vertices:
+            self.vertices[vertice] = []
 
-    def neighbors(x, y):
-        return [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+    def adicionar_aresta(self, vertice1, vertice2):
+        if vertice1 in self.vertices and vertice2 in self.vertices:
+            self.vertices[vertice1].append(vertice2)
+            self.vertices[vertice2].append(vertice1)
 
-    start = (0, labirinto[0].index(' '))
-    end = (len(labirinto) - 1, labirinto[-1].index(' '))
-
-    queue = deque([(start, [start])])
-    visited = set()
+def bfs_labirinto(grafo, inicio, fim):
+    queue = deque([(inicio, [inicio])])
+    visitados = set()
 
     while queue:
-        (x, y), path = queue.popleft()
-        if (x, y) == end:
-            return path
+        vertice, caminho = queue.popleft()
+        if vertice == fim:
+            return caminho
 
-        for neighbor_x, neighbor_y in neighbors(x, y):
-            if is_valid(neighbor_x, neighbor_y) and (neighbor_x, neighbor_y) not in visited:
-                visited.add((neighbor_x, neighbor_y))
-                queue.append(((neighbor_x, neighbor_y), path + [(neighbor_x, neighbor_y)]))
+        for vizinho in grafo.vertices[vertice]:
+            if vizinho not in visitados:
+                visitados.add(vizinho)
+                queue.append((vizinho, caminho + [vizinho]))
 
-    return None
+def criar_grafo_labirinto(labirinto):
+    grafo = Grafo()
+    altura = len(labirinto)
+    largura = len(labirinto[0])
+
+    for i in range(altura):
+        for j in range(largura):
+            if labirinto[i][j] == ' ':
+                vertice = (i, j)
+                grafo.adicionar_vertice(vertice)
+
+    for i in range(altura):
+        for j in range(largura):
+            if labirinto[i][j] == ' ':
+                for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                    x, y = i + dx, j + dy
+                    if 0 <= x < altura and 0 <= y < largura and labirinto[x][y] == ' ':
+                        grafo.adicionar_aresta((i, j), (x, y))
+
+    return grafo
 
 def marcar_labirinto(labirinto, caminho):
     # Função para marcar o labirinto com X ao longo do caminho
-    marked_labirinto = [list(row) for row in labirinto]
+    labirinto_marcado = [list(linha) for linha in labirinto]
     for x, y in caminho:
-        marked_labirinto[x][y] = 'X'
-    return marked_labirinto
+        labirinto_marcado[x][y] = 'X'
+    return labirinto_marcado
 
 def imprimir_labirinto(labirinto):
     # Função para imprimir o labirinto no console
-    for row in labirinto:
-        print("".join(row))
+    for linha in labirinto:
+        print("".join(linha))
 
 def on_ver_caminho(labirinto, labirinto_label):
-    caminho = bfs_labirinto(labirinto)
+    grafo = criar_grafo_labirinto(labirinto)
+    inicio = (0, labirinto[0].index(' '))
+    fim = (len(labirinto) - 1, labirinto[-1].index(' '))
+
+    caminho = bfs_labirinto(grafo, inicio, fim)
 
     if caminho:
         resposta = messagebox.askyesno("Caminho mais curto", "Quer ver as coordenadas do caminho mais curto?")
@@ -52,11 +78,12 @@ def on_ver_caminho(labirinto, labirinto_label):
                 caminho_str += f"({x}, {y})\n"
 
             messagebox.showinfo("Caminho mais curto", caminho_str)
-        
+
         # Atualiza o labirinto com as marcações
         labirinto_atualizado = marcar_labirinto(labirinto, caminho)
-        labirinto_txt = "\n".join(["".join(row) for row in labirinto_atualizado])
+        labirinto_txt = "\n".join(["".join(linha) for linha in labirinto_atualizado])
         labirinto_label.config(text=labirinto_txt)
+
 
 def criar_labirinto_frame(root, labirinto, titulo):
     frame = tk.Frame(root)
@@ -75,12 +102,12 @@ def criar_labirinto_frame(root, labirinto, titulo):
     btn_ver_caminho = tk.Button(frame, text="Ver Caminho", command=lambda: on_ver_caminho(labirinto, labirinto_label))
     btn_ver_caminho.pack()
 
-def abrir_janela_labirintos(nome_usuario):
+def abrir_janela_labirintos():
     labirinto1 = [
         "#### ######################",
         "#### ######################",
         "##                   ######",
-        "###### #####    ### #######",
+        "############    ### #######",
         "###### ##### #####     ####",
         "###    ###    ##   ## #####",
         "### ###### ####### ##   ###",
@@ -94,11 +121,11 @@ def abrir_janela_labirintos(nome_usuario):
         "##### ###############",
         "#                   #",
         "# #   #   #   #   # #",
-        "# # # # # # # # # # #",
+        "# # # #   # # # # # #",
         "# #   #   #   #   # #",
-        "# # # # # #   # #   #",
+        "# # # #   #   # #   #",
         "# #   #   #   #   ###",
-        "# ########### ## ## #",
+        "# ####### ###    ## #",
         "#   ####            #",
         "################### #"
     ]
@@ -111,7 +138,7 @@ def abrir_janela_labirintos(nome_usuario):
     criar_labirinto_frame(root, labirinto2, "Labirinto 2")
 
     # Adicione uma saudação com o nome do usuário
-    saudacao_label = tk.Label(root, text=f"Bem-vindo, {nome_usuario}!", font=("Arial", 16), fg="purple")
+    saudacao_label = tk.Label(root, text=f"Bem-vindo", font=("Arial", 16), fg="purple")
     saudacao_label.pack()
 
     root.mainloop()
@@ -154,4 +181,4 @@ def abrir_janela_nickname():
     janela_nickname.mainloop()
 
 # Inicie abrindo a janela de nickname
-abrir_janela_nickname()
+abrir_janela_labirintos()
